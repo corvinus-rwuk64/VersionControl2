@@ -12,9 +12,16 @@ namespace week5._2
 {
     public partial class Form1 : Form
     {
+        PortfolioEntities context = new PortfolioEntities();
+        List<Tick> Ticks;
+        List<>
+
         public Form1()
         {
             InitializeComponent();
+            Ticks = context.Ticks.ToList();
+            dataGridView1.DataSource = Ticks;
+
         }
     }
 }
