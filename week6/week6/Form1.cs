@@ -17,10 +17,27 @@ namespace week6
     public partial class Form1 : Form
     {
         BindingList<RateData> Rates = new BindingList<RateData>();
+        BindingList<string> Currencies = new BindingList<string>();
 
         public Form1()
         {
             InitializeComponent();
+
+            comboBox1.DataSource = Currencies;
+
+            var mnbService = new MNBArfolyamServiceSoapClient();
+            var request = new GetCurrenciesRequestBody();
+            var response = mnbService.GetCurrencies(request);
+            var result = response.GetCurrenciesResult;
+
+            XmlDocument xml = new XmlDocument();
+            xml.LoadXml(result);
+
+            string currency = xml.InnerText;
+            for(int i = 0; i < currency.Length/3; i++)
+            {
+                Currencies.Add(currency.Substring(i * 3, 3));
+            }
 
             RefreshData();
         }
@@ -57,6 +74,8 @@ namespace week6
                 rate.Date = DateTime.Parse(element.GetAttribute("date"));
 
                 var childElement = (XmlElement)element.ChildNodes[0];
+                if (childElement == null)
+                    continue;
                 rate.Currency = childElement.GetAttribute("curr");
 
                 var unit = decimal.Parse(childElement.GetAttribute("unit"));
@@ -92,6 +111,7 @@ namespace week6
             //webszolgaltatasHivas();
 
             dataGridView1.DataSource = Rates;
+            
 
             xmlFeldolgozas();
 
@@ -112,5 +132,7 @@ namespace week6
         {
             RefreshData();
         }
+
+        
     }
 }
