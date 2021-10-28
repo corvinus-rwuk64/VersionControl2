@@ -15,6 +15,13 @@ namespace week6
         public Form1()
         {
             InitializeComponent();
+
+
+        }
+
+        public void webszolgaltatasHivas()
+        {
+            var mnbService = new 
         }
     }
 }
