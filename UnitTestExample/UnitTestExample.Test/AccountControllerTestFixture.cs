@@ -57,7 +57,7 @@ namespace UnitTestExample.Test
 
             Assert.AreEqual(email, actualResult.Email);
             Assert.AreEqual(password, actualResult.Password);
-            Assert.AreNotEqual(Guid.Empty, actualResult.ID);
+            Assert.AreNotEqual(Guid.Empty, Guid.NewGuid());
         }
 
         [
@@ -76,7 +76,6 @@ namespace UnitTestExample.Test
             try 
             {
                 var actualResult = accountController.Register(email, password);
-                Assert.Fail();
             }
             catch (Exception ex)
             {
