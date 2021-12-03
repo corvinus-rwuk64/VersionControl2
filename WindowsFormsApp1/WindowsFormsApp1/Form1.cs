@@ -28,6 +28,22 @@ namespace WindowsFormsApp1
             BirthProbabilities = GetBirthProbabilities(@"C:\Users\plank\AppData\Local\Temp\születés.csv");
             DeathProbabilities = GetDeathProbabilities(@"C:\Users\plank\AppData\Local\Temp\halál.csv");
 
+            for (int year = 2005; year <= 2024; year++)
+            {
+                for (int i = 0; i < Population.Count; i++)
+                {
+
+                }
+
+                int numOfMales = (from x in Population
+                                  where x.Gender == Gender.Male && x.IsAlive
+                                  select x).Count();
+                int numOfFemales = (from x in Population
+                                    where x.Gender == Gender.Female && x.IsAlive
+                                    select x).Count();
+                Console.WriteLine(
+                    string.Format("Év:{0} Fiúk:{1} Lányok:{2}", year, numOfMales, numOfFemales));
+            }
         }
 
         public List<Person> GetPopulation(string csvpath)
