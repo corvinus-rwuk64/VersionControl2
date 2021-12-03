@@ -20,30 +20,13 @@ namespace WindowsFormsApp1
 
         Random rng = new Random(1234);
 
+        List<int> numOfMales = new List<int>();
+        List<int> numOfFemales = new List<int>();
+
         public Form1()
         {
             InitializeComponent();
 
-            Population = GetPopulation(@"C:\Users\plank\AppData\Local\Temp\nép-teszt.csv");
-            BirthProbabilities = GetBirthProbabilities(@"C:\Users\plank\AppData\Local\Temp\születés.csv");
-            DeathProbabilities = GetDeathProbabilities(@"C:\Users\plank\AppData\Local\Temp\halál.csv");
-
-            for (int year = 2005; year <= 2024; year++)
-            {
-                for (int i = 0; i < Population.Count; i++)
-                {
-                    SimStep(year, Population[i]);
-                }
-
-                int numOfMales = (from x in Population
-                                  where x.Gender == Gender.Male && x.IsAlive
-                                  select x).Count();
-                int numOfFemales = (from x in Population
-                                    where x.Gender == Gender.Female && x.IsAlive
-                                    select x).Count();
-                MessageBox.Show(
-                    string.Format("Év:{0} Fiúk:{1} Lányok:{2}", year, numOfMales, numOfFemales));
-            }
         }
 
         public List<Person> GetPopulation(string csvpath)
@@ -137,6 +120,64 @@ namespace WindowsFormsApp1
                     Population.Add(újSzülött);
                 }
             }
+        }
+
+        private void Simulation()
+        {
+            numOfFemales.Clear();
+            numOfMales.Clear();
+            richTextBox1.Clear();
+
+            if (yearPicker.Value <= 2005)
+            {
+                MessageBox.Show("Minimum érték: 2005");
+                return;
+            }
+
+            for (int year = 2005; year <= yearPicker.Value; year++)
+            {
+                for (int i = 0; i < Population.Count; i++)
+                {
+                    SimStep(year, Population[i]);
+                }
+
+                numOfMales.Add((from x in Population
+                                where x.Gender == Gender.Male && x.IsAlive
+                                select x).Count());
+                numOfFemales.Add((from x in Population
+                                  where x.Gender == Gender.Female && x.IsAlive
+                                  select x).Count());
+            }
+        }
+
+        private void DisplayResults()
+        {
+            int currentIndex = 0;
+            for(int year = 2005; year <= yearPicker.Value; year++)
+            {
+                currentIndex = year - 2005;
+                richTextBox1.AppendText(string.Format("Szimulációs év:{0} \n\tFiúk:{1} \n\tLányok:{2}\n\n", year, numOfMales[currentIndex], numOfFemales[currentIndex]));
+            }
+            
+        }
+
+        private void startButton_Click(object sender, EventArgs e)
+        {
+            Population = GetPopulation(csvpathBox.Text);
+            BirthProbabilities = GetBirthProbabilities(@"C:\Users\plank\AppData\Local\Temp\születés.csv");
+            DeathProbabilities = GetDeathProbabilities(@"C:\Users\plank\AppData\Local\Temp\halál.csv");
+
+            Simulation();
+
+            DisplayResults();
+        }
+
+        private void browseButton_Click(object sender, EventArgs e)
+        {
+            OpenFileDialog ofd = new OpenFileDialog();
+
+            ofd.ShowDialog();
+            csvpathBox.Text = ofd.FileName;
         }
     }
 }
