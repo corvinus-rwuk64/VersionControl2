@@ -24,7 +24,7 @@ namespace WindowsFormsApp1
         {
             InitializeComponent();
 
-            Population = GetPopulation(@"C: \Users\plank\AppData\Local\Temp\nép.csv");
+            Population = GetPopulation(@"C:\Users\plank\AppData\Local\Temp\nép-teszt.csv");
             BirthProbabilities = GetBirthProbabilities(@"C:\Users\plank\AppData\Local\Temp\születés.csv");
             DeathProbabilities = GetDeathProbabilities(@"C:\Users\plank\AppData\Local\Temp\halál.csv");
 
@@ -32,7 +32,7 @@ namespace WindowsFormsApp1
             {
                 for (int i = 0; i < Population.Count; i++)
                 {
-
+                    SimStep(year, Population[i]);
                 }
 
                 int numOfMales = (from x in Population
@@ -41,7 +41,7 @@ namespace WindowsFormsApp1
                 int numOfFemales = (from x in Population
                                     where x.Gender == Gender.Female && x.IsAlive
                                     select x).Count();
-                Console.WriteLine(
+                MessageBox.Show(
                     string.Format("Év:{0} Fiúk:{1} Lányok:{2}", year, numOfMales, numOfFemales));
             }
         }
@@ -107,6 +107,36 @@ namespace WindowsFormsApp1
             }
 
             return deathProbabilities;
+        }
+
+        public void SimStep(int year, Person p)
+        {
+            if (!p.IsAlive) return;
+
+            byte age = (byte)(year - p.BirthYear);
+
+            double pDeath = (from x in DeathProbabilities
+                             where x.Gender == p.Gender && x.Age == age
+                             select x.Probability).FirstOrDefault();
+
+            if (rng.NextDouble() <= pDeath)
+                p.IsAlive = false;
+
+            if (p.IsAlive && p.Gender == Gender.Female)
+            {
+                double pBirth = (from x in BirthProbabilities
+                                 where x.Age == age
+                                 select x.Probability).FirstOrDefault();
+
+                if (rng.NextDouble() <= pBirth)
+                {
+                    Person újSzülött = new Person();
+                    újSzülött.BirthYear = year;
+                    újSzülött.NumOfChildren = 0;
+                    újSzülött.Gender = (Gender)(rng.Next(1, 3));
+                    Population.Add(újSzülött);
+                }
+            }
         }
     }
 }
