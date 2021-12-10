@@ -21,9 +21,13 @@ namespace WindowsFormsApp2
         int nbrOfStepsIncrement = 10;
         int generation = 1;
 
+        Brain winnerBrain = null;
+
         public Form1()
         {
             InitializeComponent();
+
+            button1.Visible = false;
 
             ga = gc.ActivateDisplay();
             this.Controls.Add(ga);
@@ -51,6 +55,18 @@ namespace WindowsFormsApp2
                              select p;
             var topPerformers = playerList.Take(populationSize / 2).ToList();
 
+            var winners = from p in topPerformers
+                          where p.IsWinner
+                          select p;
+
+            if (winners.Count() > 0)
+            {
+                winnerBrain = winners.FirstOrDefault().Brain.Clone();
+                gc.GameOver -= Gc_GameOver;
+                button1.Visible = true;
+                return;
+            }
+
             gc.ResetCurrentLevel();
             foreach (var p in topPerformers)
             {
@@ -66,6 +82,17 @@ namespace WindowsFormsApp2
                     gc.AddPlayer(b.Mutate());
             }
             gc.Start();
+
+
+        }
+
+        private void button1_Click(object sender, EventArgs e)
+        {
+            gc.ResetCurrentLevel();
+            gc.AddPlayer(winnerBrain.Clone());
+            gc.AddPlayer();
+            ga.Focus();
+            gc.Start(true);
         }
     }
 }
